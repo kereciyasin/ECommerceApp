@@ -1,4 +1,5 @@
-﻿using ECommerceApp.Entities.Concrete;
+﻿using ECommerceApp.Business.Services;
+using ECommerceApp.Entities.Concrete;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,51 +10,50 @@ namespace ECommerceApp.API.Controllers
     public class FeatureController : ControllerBase
     {
 
-        private static List<Feature> _features = new List<Feature>(); // Geçici olarak memory içi veri
+        private readonly IFeatureService _featureService;
+
+        public FeatureController(IFeatureService featureService)
+        {
+            _featureService = featureService;
+        }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<ActionResult<IEnumerable<Feature>>> GetAll()
         {
-            return Ok(_features);
+            var features = await _featureService.GetAllAsync();
+            return Ok(features);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<ActionResult<Feature>> GetById(int id)
         {
-            var feature = _features.FirstOrDefault(f => f.Id == id);
+            var feature = await _featureService.GetByIdAsync(id);
             if (feature == null)
                 return NotFound();
             return Ok(feature);
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] Feature feature)
+        public async Task<ActionResult> Create([FromBody] Feature feature)
         {
-            feature.Id = _features.Count > 0 ? _features.Max(f => f.Id) + 1 : 1;
-            _features.Add(feature);
+            await _featureService.AddAsync(feature);
             return CreatedAtAction(nameof(GetById), new { id = feature.Id }, feature);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody] Feature updatedFeature)
+        public async Task<ActionResult> Update(int id, [FromBody] Feature feature)
         {
-            var feature = _features.FirstOrDefault(f => f.Id == id);
-            if (feature == null)
-                return NotFound();
+            if (id != feature.Id)
+                return BadRequest();
 
-            feature.Name = updatedFeature.Name;
-            feature.ProductId = updatedFeature.ProductId;
+            await _featureService.UpdateAsync(feature);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var feature = _features.FirstOrDefault(f => f.Id == id);
-            if (feature == null)
-                return NotFound();
-
-            _features.Remove(feature);
+            await _featureService.DeleteAsync(id);
             return NoContent();
         }
     }
