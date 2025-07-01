@@ -1,4 +1,6 @@
+using ECommerceApp.Business.Services;
 using ECommerceApp.Data.Context;
+using ECommerceApp.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace ECommerceApp.API
@@ -15,6 +17,9 @@ namespace ECommerceApp.API
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            builder.Services.AddScoped<IFeatureService, FeatureService>();
 
             builder.Services.AddDbContext<ECommerceDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
