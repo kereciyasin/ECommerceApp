@@ -12,6 +12,6 @@ namespace ECommerceApp.Entities.Concrete
         public string Name { get; set; }
 
         // Navigation property
-        public ICollection<Product> Products { get; set; }
+        public ICollection<Product>? Products { get; set; }
     }
 }
