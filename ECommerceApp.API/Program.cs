@@ -18,6 +18,8 @@ namespace ECommerceApp.API
             builder.Services.AddControllers();
             builder.Services.AddValidatorsFromAssemblyContaining<FeatureDtoValidator>();
             builder.Services.AddValidatorsFromAssemblyContaining<ProductDtoValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<CategoryDtoValidator>();
+
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -25,6 +27,8 @@ namespace ECommerceApp.API
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFeatureService, FeatureService>();
             builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 

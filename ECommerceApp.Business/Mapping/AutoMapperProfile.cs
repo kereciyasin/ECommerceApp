@@ -16,6 +16,7 @@ namespace ECommerceApp.Business.Mapping
         {
             CreateMap<Feature, FeatureDto>().ReverseMap();
             CreateMap<Product, ProductDto>().ReverseMap();
+            CreateMap<Category, CategoryDto>().ReverseMap();
 
         }
 

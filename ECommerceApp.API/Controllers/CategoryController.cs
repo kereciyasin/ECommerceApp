@@ -1,5 +1,8 @@
-﻿using ECommerceApp.Data.Context;
+﻿using AutoMapper;
+using ECommerceApp.Business.Services;
+using ECommerceApp.Data.Context;
 using ECommerceApp.Entities.Concrete;
+using ECommerceApp.Entities.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,86 +13,58 @@ namespace ECommerceApp.API.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly ECommerceDbContext _context;
+        private readonly ICategoryService _categoryService;
+        private readonly IMapper _mapper;
 
-        public CategoryController(ECommerceDbContext context)
+        public CategoryController(ECommerceDbContext context, ICategoryService categoryService, IMapper mapper)
         {
             _context = context;
+            _categoryService = categoryService;
+            _mapper = mapper;
         }
 
-        // GET: api/Category
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAll()
         {
-            return await _context.Categories.ToListAsync();
+            var categories = await _categoryService.GetAllAsync();
+            var categoryDtos = _mapper.Map<IEnumerable<CategoryDto>>(categories);
+            return Ok(categoryDtos);
         }
 
-        // GET: api/Category/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryDto>> GetById(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-
+            var category = await _categoryService.GetByIdAsync(id);
             if (category == null)
-            {
                 return NotFound();
-            }
-
-            return category;
+            var categoryDto = _mapper.Map<CategoryDto>(category);
+            return Ok(categoryDto);
         }
 
-        // POST: api/Category
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(Category category)
+        public async Task<ActionResult> Create([FromBody] CategoryDto categoryDto)
         {
-            _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, category);
+            var category = _mapper.Map<Category>(categoryDto);
+            await _categoryService.AddAsync(category);
+            var createdDto = _mapper.Map<CategoryDto>(category);
+            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto);
         }
 
-        // PUT: api/Category/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<ActionResult> Update(int id, [FromBody] CategoryDto categoryDto)
         {
-            if (id != category.Id)
-            {
+            if (id != categoryDto.Id)
                 return BadRequest();
-            }
 
-            _context.Entry(category).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Categories.Any(e => e.Id == id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
+            var category = _mapper.Map<Category>(categoryDto);
+            await _categoryService.UpdateAsync(category);
             return NoContent();
         }
 
-        // DELETE: api/Category/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<ActionResult> Delete(int id)
         {
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
-
+            await _categoryService.DeleteAsync(id);
             return NoContent();
         }
     }
