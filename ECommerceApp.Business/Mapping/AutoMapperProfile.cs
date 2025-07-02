@@ -15,6 +15,7 @@ namespace ECommerceApp.Business.Mapping
         public AutoMapperProfile()
         {
             CreateMap<Feature, FeatureDto>().ReverseMap();
+            CreateMap<Product, ProductDto>().ReverseMap();
 
         }
 

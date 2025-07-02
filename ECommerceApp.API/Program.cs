@@ -17,12 +17,14 @@ namespace ECommerceApp.API
 
             builder.Services.AddControllers();
             builder.Services.AddValidatorsFromAssemblyContaining<FeatureDtoValidator>();
+            builder.Services.AddValidatorsFromAssemblyContaining<ProductDtoValidator>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFeatureService, FeatureService>();
+            builder.Services.AddScoped<IProductService, ProductService>();
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
