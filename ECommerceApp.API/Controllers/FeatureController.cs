@@ -1,5 +1,7 @@
-﻿using ECommerceApp.Business.Services;
+﻿using AutoMapper;
+using ECommerceApp.Business.Services;
 using ECommerceApp.Entities.Concrete;
+using ECommerceApp.Entities.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,41 +13,48 @@ namespace ECommerceApp.API.Controllers
     {
 
         private readonly IFeatureService _featureService;
+        private readonly IMapper _mapper;
 
-        public FeatureController(IFeatureService featureService)
+        public FeatureController(IFeatureService featureService, IMapper mapper)
         {
             _featureService = featureService;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Feature>>> GetAll()
+        public async Task<ActionResult<IEnumerable<FeatureDto>>> GetAll()
         {
             var features = await _featureService.GetAllAsync();
-            return Ok(features);
+            var featureDtos = _mapper.Map<IEnumerable<FeatureDto>>(features);
+            return Ok(featureDtos);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Feature>> GetById(int id)
+        public async Task<ActionResult<FeatureDto>> GetById(int id)
         {
             var feature = await _featureService.GetByIdAsync(id);
             if (feature == null)
                 return NotFound();
-            return Ok(feature);
+            var featureDto = _mapper.Map<FeatureDto>(feature);
+            return Ok(featureDto);
         }
 
         [HttpPost]
-        public async Task<ActionResult> Create([FromBody] Feature feature)
+        public async Task<ActionResult> Create([FromBody] FeatureDto featureDto)
         {
+            var feature = _mapper.Map<Feature>(featureDto);
             await _featureService.AddAsync(feature);
-            return CreatedAtAction(nameof(GetById), new { id = feature.Id }, feature);
+            var createdDto = _mapper.Map<FeatureDto>(feature);
+            return CreatedAtAction(nameof(GetById), new { id = createdDto.Id }, createdDto);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, [FromBody] Feature feature)
+        public async Task<ActionResult> Update(int id, [FromBody] FeatureDto featureDto)
         {
-            if (id != feature.Id)
+            if (id != featureDto.Id)
                 return BadRequest();
 
+            var feature = _mapper.Map<Feature>(featureDto);
             await _featureService.UpdateAsync(feature);
             return NoContent();
         }
@@ -58,3 +67,4 @@ namespace ECommerceApp.API.Controllers
         }
     }
 }
+

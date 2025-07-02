@@ -2,6 +2,8 @@ using ECommerceApp.Business.Services;
 using ECommerceApp.Data.Context;
 using ECommerceApp.Data.Repositories;
 using Microsoft.EntityFrameworkCore;
+using ECommerceApp.Business.Mapping;
+
 
 namespace ECommerceApp.API
 {
@@ -20,6 +22,8 @@ namespace ECommerceApp.API
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFeatureService, FeatureService>();
+
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
             builder.Services.AddDbContext<ECommerceDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
