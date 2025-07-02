@@ -4,8 +4,8 @@ using ECommerceApp.Business.Services;
 using ECommerceApp.Data.Context;
 using ECommerceApp.Data.Repositories;
 using ECommerceApp.Entities.Validator;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace ECommerceApp.API
 {
@@ -15,21 +15,14 @@ namespace ECommerceApp.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
             builder.Services.AddControllers();
-
+            builder.Services.AddValidatorsFromAssemblyContaining<FeatureDtoValidator>();
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IFeatureService, FeatureService>();
-
-            builder.Services.AddControllers()
-                    .AddFluentValidation(fv =>
-                        {
-                            fv.RegisterValidatorsFromAssemblyContaining<FeatureDtoValidator>();
-                        });
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
@@ -40,16 +33,13 @@ namespace ECommerceApp.API
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
 
-
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            // Configure the HTTP request pipeline.
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();
